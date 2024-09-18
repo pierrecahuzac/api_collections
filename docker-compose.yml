@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  
+  db:
+    image: postgis/postgis:12-3.4-alpine
+    volumes:
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U ochaos -d ochaos"]
+    #   start_period: 15s
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 5
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pcahuzac -d collections"]
+      start_period: 15s
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api/
+      dockerfile: DockerFile
+    command: npm run start
+    ports:
+      - 3000:3000
+    volumes:
+      - ./api:/usr/src/backend
+      - /usr/src/api/node_modules
+    tty: true
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  studio:
+    container_name: studio
+    image: timothyjmiller/prisma-studio:latest
+    restart: unless-stopped
+    ports:
+      - 5555:5555
+    depends_on:
+      db:
+        condition: service_healthy
+
+    env_file:
+      - .env

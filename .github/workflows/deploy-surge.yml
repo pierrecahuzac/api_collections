@@ -1,0 +1,46 @@
+name: Deploy to Surge
+
+# Déclenche le déploiement à chaque push sur la branche main
+on:
+  workflow_dispatch:
+  push:
+    branches: "master"
+
+# N'autorise un seul déploiement à la fois
+concurrency:
+  group: "surge"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    environment: production
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      # Récupère le code à jour
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Installe les dépendances
+      - name: Install dependencies
+        run: npm ci
+
+      # Build le site
+      - name: Build
+        run: npm run build
+
+      # Envoie le site sur Surge
+      - name: Deploy
+        run: |
+          npm install -g surge
+          surge ./dist ${{ secrets.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }}
+
+      # - name: Running Page Speed Insights
+      #   uses: jakepartusch/psi-action@v1.3
+      #   id: psi
+      #   with:
+      #     url: "https://${{ secrets.SURGE_DOMAIN }}"
+      #     key: ${{ secrets.PAGESPEED_KEY }}

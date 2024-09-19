@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Req, RawBodyRequest} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,11 +7,18 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @HttpCode(204)
-  async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Post('signup')
+  @HttpCode(201)
+  async create(@Body() signupData: { email: string; password: string, passwordConfirmation: string, username: string }) {
+    return this.usersService.create(signupData);
   }
+
+  @Post("login")
+  @HttpCode(200)
+  async login(@Body() loginData: { email: string; password: string }) {
+    return this.usersService.login(loginData);
+  }
+
 
   @Get()
   @HttpCode(200)
@@ -24,16 +31,14 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
-  async findByEmail(@Param('id') id: string) {
-    return this.usersService.findByEmail(id);
+  async findByEmail(@Param('email') email: string) {
+    return this.usersService.findByEmail(email);
   }
-
-  
 
   @Patch(':id')
   @HttpCode(200)
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: string, @Body() user: {email:string, username: string}) {
+    return this.usersService.update(id, user);
   }
 
   @Delete(':id')

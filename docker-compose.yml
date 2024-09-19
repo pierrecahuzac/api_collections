@@ -1,11 +1,9 @@
-version: "3.9"
-
 services:
   app:
     build:
       context: ./app/
       dockerfile: DockerFile
-    command: npm run dev
+    
     ports:
       - 5173:5173
     env_file:
@@ -23,7 +21,7 @@ services:
       - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pcahuzac -d collections"]
-      start_period: 15s
+      start_period: 10s
       interval: 15s
       timeout: 5s
       retries: 5
@@ -32,7 +30,7 @@ services:
     build:
       context: ./api/
       dockerfile: DockerFile
-    command: npm run start:dev
+    
 
     ports:
       - 3000:3000
@@ -54,6 +52,5 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
     env_file:
       - .env

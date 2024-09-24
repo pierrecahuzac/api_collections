@@ -5,6 +5,7 @@ import Signup from "./Pages/Signup";
 import Profile from "./Pages/Profile";
 
 import '../src/style.css'
+
 const App = () => {
   return (
     <BrowserRouter>
@@ -12,7 +13,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/user/profile" element={<Profile />} />
+        <Route path="/user/:userId/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );

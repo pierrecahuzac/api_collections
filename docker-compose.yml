@@ -30,8 +30,6 @@ services:
     build:
       context: ./api/
       dockerfile: DockerFile
-    
-
     ports:
       - 3000:3000
     volumes:

@@ -1,12 +1,14 @@
-import React, { ButtonHTMLAttributes, useState } from "react";
+import React, { useState } from "react";
 import Layout from "./Layout";
-import { redirect } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Signin = () => {
   const [userValue, setUserValue] = useState({
     email: "",
     password: "",
   });
+  const [user, setUser] = useState();
+  const navigate = useNavigate();
   const [connected, setIsConnected] = useState<boolean>(false);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,7 +21,6 @@ const Signin = () => {
 
   const submit = async (e: any) => {
     e.preventDefault();
-
     try {
       const response = await fetch("http://localhost:3000/users/login", {
         method: "POST",
@@ -38,17 +39,18 @@ const Signin = () => {
       console.log(data);
       if (data.message === "Utilisateur trouvé") {
         setIsConnected(true);
-      
-        return redirect(`/`)
-        
+        localStorage.setItem('userId', data.user.id)
+        localStorage.setItem('email', data.user.email)
+        setUser(data.user);
+        navigate(`/user/${data.user.id}/profile`);
       }
     } catch (error: any) {
-      console.log(error);
       throw new Error(error);
     }
   };
   return (
     <Layout>
+      <Link to={"/signup"}>Inscription</Link>
       <div className="w-full h-full flex flex-col justify-center align-middle text-center">
         <h1>Connexion</h1>
         {!connected ? (
@@ -62,7 +64,6 @@ const Signin = () => {
                 name="email"
                 onChange={handleInputChange}
               />
-            
             </div>
             <div>
               <label htmlFor="password">Password</label>
@@ -73,12 +74,11 @@ const Signin = () => {
                 placeholder="Mot de passe"
                 onChange={handleInputChange}
               />
-           
             </div>
             <button onClick={(e) => submit(e)}>Connexion</button>
           </form>
         ) : (
-          <div> User connected</div>
+          <div>User connected</div>
         )}
       </div>
     </Layout>

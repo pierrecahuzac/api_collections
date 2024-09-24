@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 
 import * as bcrypt from 'bcryptjs';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,11 +21,11 @@ export class UsersService {
       where: {
         email: email,
       },
+
     });
     if (userExist) {
-      throw new Error('Impossible to create, user exist in db');
       return { message: 'Impossible to create, user exist in db' };
-    }
+    } 
     let passwordHashed: string;
     if (signupData.password === passwordConfirmation) {
       const saltOrRounds = 10;
@@ -39,7 +40,7 @@ export class UsersService {
     });
     return { message: 'Utilisateur créé avec succès', newUser };
   }
-  async login(loginData: { email: string; password: string }) {
+  async login(loginData: LoginUserDto) {
     const user = await this.prisma.user.findUnique({
       where: {
         email: loginData.email,
@@ -50,9 +51,8 @@ export class UsersService {
     }
 
     const passwordIsOK = bcrypt.compareSync(loginData.password, user.password);
-    console.log(passwordIsOK);    
     if (!passwordIsOK) {
-      return { message: 'Mauvaise combinaison email/mots'};
+      return { message: 'Mauvaise combinaison email / mot de passe'};
 
     }
     delete user.password

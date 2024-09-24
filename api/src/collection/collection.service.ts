@@ -9,7 +9,7 @@ export class CollectionService {
 
   async create(createCollectionDto: CreateCollectionDto) {
     await this.prisma.collection.create({
-      data: {
+      data: { 
         title: createCollectionDto.title,
         type: createCollectionDto.type,
         userId: createCollectionDto.userId,  

@@ -1,4 +1,5 @@
 import React, { ButtonHTMLAttributes, useState } from "react";
+import Header from "../Components/Header";
 
 const Signup = () => {
   const [signup, setSignup] = useState({
@@ -44,9 +45,11 @@ const Signup = () => {
       throw new Error(error);
     }
   };
+  
   return (
     <div className="w-full h-full">
-      <h1>Signup</h1>
+      <Header/>
+      <h1>Inscription</h1>
       <form action="submit" className="max-w-sm mx-auto">
         <div className="mb-5">
           <label

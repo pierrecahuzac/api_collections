@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -15,10 +15,7 @@ export class UsersService {
     passwordConfirmation: string;
     username: string;
   }) {
-    
-    const {email,password,
-      passwordConfirmation,
-      username} = signupData
+    const { email, password, passwordConfirmation, username } = signupData;
     const userExist = await this.prisma.user.findUnique({
       where: {
         email: email,
@@ -26,6 +23,7 @@ export class UsersService {
     });
     if (userExist) {
       throw new Error('Impossible to create, user exist in db');
+      return { message: 'Impossible to create, user exist in db' };
     }
     let passwordHashed: string;
     if (signupData.password === passwordConfirmation) {
@@ -35,7 +33,7 @@ export class UsersService {
     const newUser = await this.prisma.user.create({
       data: {
         email: email,
-        password: passwordHashed,        
+        password: passwordHashed,
         username: username,
       },
     });
@@ -50,6 +48,14 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    const passwordIsOK = bcrypt.compareSync(loginData.password, user.password);
+    console.log(passwordIsOK);    
+    if (!passwordIsOK) {
+      return { message: 'Mauvaise combinaison email/mots'};
+
+    }
+    delete user.password
     return { message: 'Utilisateur trouvé', user };
   }
 
@@ -81,7 +87,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, user: {email:string, username: string}) {
+  async update(id: string, user: { email: string; username: string }) {
     const userToUpdate = await this.prisma.user.findUnique({
       where: {
         id,

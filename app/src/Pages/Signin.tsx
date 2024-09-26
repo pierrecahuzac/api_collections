@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import Layout from "./Layout";
+import Layout from "../Components/Layout";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Signin = () => {
   const [userValue, setUserValue] = useState({
@@ -29,7 +30,6 @@ const Signin = () => {
         },
         body: JSON.stringify(userValue),
       });
-      console.log(response);
 
       if (response.status !== 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -37,20 +37,29 @@ const Signin = () => {
 
       const data = await response.json();
       console.log(data);
-      if (data.message === "Utilisateur trouvé") {
-        setIsConnected(true);
-        localStorage.setItem('userId', data.user.id)
-        localStorage.setItem('email', data.user.email)
-        setUser(data.user);
-        navigate(`/user/${data.user.id}/profile`);
+      if (data.message !== "Utilisateur trouvé") {
+       return  toast.error(data.message, { autoClose: 2000, position: "bottom-right" });  
       }
+      toast.success(data.message, { autoClose: 2000, position: "top-left" });
+      setIsConnected(true);
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("username", data.user.username);
+      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("isConnected", "connected");
+      localStorage.setItem("accessToken", data.accessToken);
+      setUser(data.user);
+      navigate(`/user/${data.user.id}/collections`);
+      
     } catch (error: any) {
+      toast.error(error.message, { autoClose: 2000, position: "bottom-right" });
+      console.log(error);
+
       throw new Error(error);
     }
   };
+
   return (
     <Layout>
-      <Link to={"/signup"}>Inscription</Link>
       <div className="w-full h-full flex flex-col justify-center align-middle text-center">
         <h1>Connexion</h1>
         {!connected ? (
@@ -76,6 +85,7 @@ const Signin = () => {
               />
             </div>
             <button onClick={(e) => submit(e)}>Connexion</button>
+            Vous n'avez pas de compte ? <Link to={"/signup"}>Inscription</Link>
           </form>
         ) : (
           <div>User connected</div>

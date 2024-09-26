@@ -13,9 +13,12 @@ import { CollectionService } from './collection/collection.service';
 import { ItemController } from './item/item.controller';
 import { ItemModule } from './item/item.module';
 import { ItemService } from './item/item.service';
-
+import { JwtModule } from '@nestjs/jwt';
 @Module({
-  imports: [UsersModule, PrismaModule, CollectionModule, ItemModule],
+  imports: [UsersModule, PrismaModule, CollectionModule, ItemModule, JwtModule.register({
+    secret:"4153415646MaSuperCléDePRoctection!!!", // Clé secrète utilisée pour signer les tokens JWT
+    signOptions: { expiresIn: '1h' }, // Durée de validité du token
+  }),],
   controllers: [AppController, UsersController, CollectionController, ItemController],
   providers: [AppService, UsersService, CollectionService, ItemService],
 })

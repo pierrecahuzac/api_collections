@@ -1,17 +1,16 @@
 import { Link } from "react-router-dom";
-import Layout from "./Layout";
+import Layout from "../Components/Layout";
 
 const Profile = () => {
   const userId = localStorage.getItem("userId");
+  const username = localStorage.getItem("username");
+  const email = localStorage.getItem("email");
+
   return (
     <Layout>
-      <h1>Ma page </h1>
-      <div>
-        <Link to={`/user/${userId}/add-new-collection`}>
-          Nouvelle collection
-        </Link>
-        <Link to={`/user/${userId}/collections`}>Afficher mes collections</Link>
-      </div>
+      <div>Profile</div>
+      <h1>Bonjour, {username}</h1>
+      <p>Email : {email}</p>
     </Layout>
   );
 };

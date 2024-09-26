@@ -5,27 +5,24 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from './dto/login-user.dto';
-
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
-  async create(signupData: {
-    email: string;
-    password: string;
-    passwordConfirmation: string;
-    username: string;
-  }) {
+  async create(signupData: CreateUserDto) {
     const { email, password, passwordConfirmation, username } = signupData;
     const userExist = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
-
     });
     if (userExist) {
       return { message: 'Impossible to create, user exist in db' };
-    } 
+    }
     let passwordHashed: string;
     if (signupData.password === passwordConfirmation) {
       const saltOrRounds = 10;
@@ -40,7 +37,9 @@ export class UsersService {
     });
     return { message: 'Utilisateur créé avec succès', newUser };
   }
+
   async login(loginData: LoginUserDto) {
+    console.log('ici');
     const user = await this.prisma.user.findUnique({
       where: {
         email: loginData.email,
@@ -52,17 +51,37 @@ export class UsersService {
 
     const passwordIsOK = bcrypt.compareSync(loginData.password, user.password);
     if (!passwordIsOK) {
-      return { message: 'Mauvaise combinaison email / mot de passe'};
-
+      return { message: 'Mauvaise combinaison email / mot de passe' };
     }
-    delete user.password
-    return { message: 'Utilisateur trouvé', user };
+    delete user.password;
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      username: user.username,
+    };
+    console.log(payload);
+    const accessToken = await this.jwtService.signAsync(payload);
+    return {
+      message: 'Utilisateur trouvé',
+      user,
+      accessToken,
+    };
   }
 
   async findAll() {
     return this.prisma.user.findMany();
   }
-
+  async getAllUserCollections(userId: string) {
+    const response = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        collections: true,
+      },
+    });
+    return response;
+  }
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: {

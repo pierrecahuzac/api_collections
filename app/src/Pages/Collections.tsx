@@ -5,7 +5,7 @@ import { useEffect } from "react";
 const Collections = () => {
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username");
-  const email = localStorage.getItem("email");
+
   
   useEffect(() => {
     const fetchData = async () => {

@@ -8,7 +8,9 @@ const Signin = () => {
     email: "",
     password: "",
   });
-  const [user, setUser] = useState();
+  const [_user, setUser] = useState();
+
+  
   const navigate = useNavigate();
   const [connected, setIsConnected] = useState<boolean>(false);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

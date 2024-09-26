@@ -1,4 +1,4 @@
-import Header from "../Components/Header";
+
 import { Link } from "react-router-dom";
 import Layout from "../Components/Layout";
 const Home = () => {

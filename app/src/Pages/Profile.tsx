@@ -1,8 +1,6 @@
-import { Link } from "react-router-dom";
 import Layout from "../Components/Layout";
 
 const Profile = () => {
-  const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username");
   const email = localStorage.getItem("email");
 

@@ -1,11 +1,9 @@
-version: "3.9"
-
 services:
   app:
+    container_name: app
     build:
       context: ./app/
       dockerfile: DockerFile
-    command: npm run dev
     ports:
       - 5173:5173
     env_file:
@@ -13,27 +11,29 @@ services:
     volumes:
       - ./app:/usr/src/app
       - /usr/src/app/node_modules
-    
+
   db:
+    container_name: db
     image: postgis/postgis:12-3.4-alpine
     volumes:
       # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./api/db:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/data
     env_file:
       - .env
+    ports:
+      - 5432:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pcahuzac -d collections"]
-      start_period: 15s
-      interval: 15s
+      start_period: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 3
 
   api:
+    container_name: api
     build:
       context: ./api/
       dockerfile: DockerFile
-    command: npm run start:dev
-
     ports:
       - 3000:3000
     volumes:
@@ -54,6 +54,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
     env_file:
       - .env
+
+  # nginx:
+  #   image: nginx
+  #   volumes:
+  #      - ./nginx/local.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     - api
+  #     - app
+  #     - studio
+  #     - db
